@@ -1,4 +1,4 @@
-<img align ="left" src=./assets/logo.svg width=250px style="padding-right: 25px; padding-top: 25px;">
+<img align ="left" src=https://github.com/dbespiatykh/tblg/blob/main/assets/logo.svg width=250px style="padding-right: 25px; padding-top: 25px;">
 
 # A command-line tool to genotype _Mycobacterium tuberculosis_ lineage from a VCF file
 

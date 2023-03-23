@@ -52,7 +52,7 @@ Options:
 
 - By default, the output is written to the standard output (stdout) in tabular format. However, the user can use the option `-o` or `--output` to change the output format to either a tab-separated or comma-separated file.
 
-```bash
+```
 +----+-------------+-----------+----------------+-----------+------------+-----------+
 |    | Sample      | Level 1   | Level 2        | Level 3   | Level 4    | Level 5   |
 +====+=============+===========+================+===========+============+===========+
@@ -74,7 +74,7 @@ Options:
 
 - Note: If an asterisk `*` appears in a 1 or 2 level lineage call, it indicates that the lineage contains only one of two barcoding SNPs.
 
-```bash
+```
 +----+-------------+-----------+----------------+-----------+------------+-----------+
 |    | Sample      | Level 1   | Level 2        | Level 3   | Level 4    | Level 5   |
 +====+=============+===========+================+===========+============+===========+

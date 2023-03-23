@@ -5,6 +5,8 @@ A command-line tool to genotype Mycobacterium tuberculosis lineage from a VCF fi
 
 Author: Dmitry Bespiatykh
 """
+import codecs
+import os.path
 import sys
 
 import click
@@ -12,10 +14,29 @@ import click
 from .barcoding import process_vcf_files
 from .utils import combine_results, print_results, write_results_to_file
 
+
+def read(rel_path):
+    here = os.path.abspath(os.path.dirname(__file__))
+    with codecs.open(os.path.join(here, rel_path), "r") as fp:
+        return fp.read()
+
+
+def get_version(rel_path):
+    for line in read(rel_path).splitlines():
+        if line.startswith("__version__"):
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    else:
+        raise RuntimeError("Unable to find version string.")
+
+
+version = get_version("__init__.py")
+
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)
+@click.version_option(version, "-v", "--version", is_flag=True)
 @click.argument(
     "vcf_files", nargs=-1, type=click.Path(exists=True), metavar="<vcf_files>"
 )
@@ -28,7 +49,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 @click.pass_context
 def main(ctx, vcf_files, output):
     """
-    TbLG (Tuberculosis Lineage Genotyping)
+    TbLG (Tuberculosis Lineage Genotyping).
 
     Process one or more VCF files and genotype lineages.
 

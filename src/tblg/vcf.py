@@ -15,7 +15,7 @@ def validate_vcf(vcf_file, counter):
 
     Returns True if the file has typical VCF structure, and False otherwise.
     """
-    if vcf_file.endswith(".gz"):
+    if vcf_file.endswith(".vcf.gz"):
         with gzopen(vcf_file, "rb") as f:
             for line in f:
                 line = line.decode("utf-8")
@@ -34,7 +34,7 @@ def validate_vcf(vcf_file, counter):
                         return False
                     else:
                         return True
-    else:
+    elif vcf_file.endswith(".vcf"):
         with open(vcf_file) as f:
             for line in f:
                 if line.startswith("#"):
@@ -52,6 +52,14 @@ def validate_vcf(vcf_file, counter):
                         return False
                     else:
                         return True
+    else:
+        warnings.showwarning(
+            f"{vcf_file} does not end with .vcf or .vcf.gz. Skipping...",
+            category=UserWarning,
+            filename="validate_vcf",
+            lineno=counter,
+        )
+        counter += 1
 
 
 def vcf_to_dataframe(file, use_tqdm=False):

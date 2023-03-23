@@ -31,7 +31,7 @@ pip install .
 3. Run TbLG:
 
 ```bash
-stblg -h
+tblg -h
 ```
 
 ## Usage

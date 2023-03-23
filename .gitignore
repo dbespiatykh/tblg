@@ -279,4 +279,7 @@ tags
 .history
 .ionide
 
+### Testing ###
+test_vcfs
+
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,sublimetext,vim,macos,python

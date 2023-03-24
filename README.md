@@ -22,13 +22,13 @@ Alternatively:
 git clone https://github.com/dbespiatykh/tblg.git
 ```
 
-2. Install TbLG
+2. Install **TbLG**
 
 ```bash
 pip install .
 ```
 
-3. Run TbLG:
+3. Run **TbLG**:
 
 ```bash
 tblg -h
@@ -39,7 +39,7 @@ tblg -h
 ```bash
 Usage: tblg [OPTIONS] <vcf_files>
 
-  TbLG (Tuberculosis Lineage Genotyping)
+  TbLG (Tuberculosis Lineage Genotyping).
 
   Process one or more VCF files and genotype lineages.
 
@@ -47,6 +47,7 @@ Usage: tblg [OPTIONS] <vcf_files>
 
 Options:
   -o, --output PATH  Write results to file '.txt', '.tsv', or '.csv'.
+  -v, --version      Show the version and exit.
   -h, --help         Show this message and exit.
 ```
 

@@ -1,15 +1,14 @@
 """Process VCF files"""
-import warnings
 from gzip import open as gzopen
 
 import numpy as np
 import pandas as pd
-from tqdm.auto import tqdm
+from tqdm import tqdm
 
 from .levels import get_levels_data
 
 
-def validate_vcf(vcf_file, counter):
+def validate_vcf(vcf_file):
     """
     Check if a VCF file has typical VCF structure.
 
@@ -24,13 +23,9 @@ def validate_vcf(vcf_file, counter):
                 else:
                     fields = line.strip().split("\t")
                     if len(fields) < 8:
-                        warnings.showwarning(
-                            f"{vcf_file} does not have typical VCF structure. Skipping...",
-                            category=UserWarning,
-                            filename="validate_vcf",
-                            lineno=counter,
+                        tqdm.write(
+                            f"{vcf_file} does not have typical VCF structure. Skipping..."
                         )
-                        counter += 1
                         return False
                     else:
                         return True
@@ -42,24 +37,14 @@ def validate_vcf(vcf_file, counter):
                 else:
                     fields = line.strip().split("\t")
                     if len(fields) < 8:
-                        warnings.showwarning(
-                            f"{vcf_file} does not have typical VCF structure. Skipping...",
-                            category=UserWarning,
-                            filename="validate_vcf",
-                            lineno=counter,
+                        tqdm.write(
+                            f"{vcf_file} does not have typical VCF structure. Skipping..."
                         )
-                        counter += 1
                         return False
                     else:
                         return True
     else:
-        warnings.showwarning(
-            f"{vcf_file} does not end with .vcf or .vcf.gz. Skipping...",
-            category=UserWarning,
-            filename="validate_vcf",
-            lineno=counter,
-        )
-        counter += 1
+        tqdm.write(f"{vcf_file} does not end with .vcf or .vcf.gz. Skipping...")
 
 
 def vcf_to_dataframe(file, use_tqdm=False):
@@ -95,12 +80,10 @@ def vcf_to_dataframe(file, use_tqdm=False):
 
     # Extract data from each line of the input file and convert it to a list
     data = []
-    counter = 0
 
     if use_tqdm:
-        pbar = tqdm(total=len(lines), desc="Reading VCF")
-    for line in lines:
-        counter += 1
+        pbar = tqdm(total=len(lines), desc="Reading VCF files", colour="blue")
+    for i, line in enumerate(lines):
         fields = line.split("\t")
         pos, ref, alt = fields[1], fields[3], fields[4]
         alleles = [ref] + alt.split(",")

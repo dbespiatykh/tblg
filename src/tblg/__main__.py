@@ -7,7 +7,8 @@ Author: Dmitry Bespiatykh
 """
 import sys
 
-import click
+import rich_click as click
+from rich import print as rprint
 
 from .barcoding import process_vcf_files
 from .utils import (
@@ -20,28 +21,36 @@ from .utils import (
 
 version = get_version("__init__.py")
 
+click.rich_click.MAX_WIDTH = 75
+click.rich_click.USE_RICH_MARKUP = True
+click.rich_click.SHOW_ARGUMENTS = True
+click.rich_click.HEADER_TEXT = f"[blue bold]TbLG[/][dim] (Tuberculosis Lineage Genotyping)[cyan] |[/] [cyan bold]v{version}[/]"
+click.rich_click.ERRORS_SUGGESTION = f"[blue bold]TbLG[/] [cyan bold]v{version}[/]\nRun '[cyan]tblg --help or -h[/]' to show help message."
+click.rich_click.STYLE_ERRORS_SUGGESTION = "cyan italic"
+click.rich_click.STYLE_OPTION = "cyan"
+
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.argument(
-    "vcf_files", nargs=-1, type=click.Path(exists=True), metavar="<vcf_files>"
+    "vcf_files",
+    nargs=-1,
+    required=True,
+    type=click.Path(exists=True),
+    metavar="[VCF FILES]",
 )
 @click.option(
     "--output",
     "-o",
     type=click.Path(),
-    help="Write results to file '.txt', '.tsv', or '.csv'.",
+    help="Write results to file [dim]['.txt', '.tsv', or '.csv']",
 )
 @click.version_option(version, "-v", "--version", is_flag=True)
 @click.pass_context
 def main(ctx, vcf_files, output):
     """
-    TbLG (Tuberculosis Lineage Genotyping).
-
     Process one or more VCF files and genotype lineages.
-
-    VCF_FILES: One or more VCF files to be processed.
     """
     validator = InputOutputValidator(ctx, vcf_files, output)
     validator.validate_input()
@@ -50,7 +59,7 @@ def main(ctx, vcf_files, output):
     results_list = process_vcf_files(vcf_files)
 
     if not results_list:
-        click.secho("ATTENTION: No valid VCF files were found!", bold=True)
+        rprint("[red bold]ATTENTION[/]: [italic]No valid VCF files were found!")
         return
 
     results = combine_results(results_list)

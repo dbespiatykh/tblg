@@ -1,6 +1,4 @@
 """Barcoding related functions"""
-import warnings
-
 import numpy as np
 from tqdm.auto import tqdm
 
@@ -143,7 +141,7 @@ def barcoding(uploaded_vcf, use_tqdm=False):
 
     # Compute the level of each sample for each level
     for i, level in (
-        enumerate(tqdm(levels, desc="Processing levels"))
+        enumerate(tqdm(levels, desc="Processing levels", colour="blue"))
         if use_tqdm
         else enumerate(levels)
     ):
@@ -182,20 +180,19 @@ def process_vcf_files(vcf_files):
     Process one or more VCF files and return a list of dataframes containing results
     """
     results_list = []
-    counter = 1  # initialize the counter to 1
 
     # Check if only one VCF file is supplied
     if len(vcf_files) == 1:
         vcf_file = vcf_files[0]
-        if validate_vcf(vcf_file, counter):
+        if validate_vcf(vcf_file):
             out = barcoding(vcf_file, use_tqdm=True)
             results_list.append(out)
 
     # If more than one VCF file is supplied, process each file and display a progress bar
     else:
-        with tqdm(total=len(vcf_files), desc="Processing VCF files") as pbar:
+        with tqdm(total=len(vcf_files), desc="Processing files", colour="blue") as pbar:
             for vcf_file in vcf_files:
-                if validate_vcf(vcf_file, counter):
+                if validate_vcf(vcf_file):
                     out = barcoding(vcf_file, use_tqdm=False)
                     if (
                         out.empty
@@ -207,16 +204,11 @@ def process_vcf_files(vcf_files):
                         )
                         is True
                     ):
-                        warnings.showwarning(
-                            f"{vcf_file} does not have any genotyping SNPs. Skipping...",
-                            category=UserWarning,
-                            filename="process_vcf",
-                            lineno=counter,
+                        tqdm.write(
+                            f"{vcf_file} does not have any genotyping SNPs. Skipping..."
                         )
-                        counter += 1
                     else:
                         results_list.append(out)
                 pbar.update(1)
-                counter += 1  # increment the counter after each file is processed
 
     return results_list

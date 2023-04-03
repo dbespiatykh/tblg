@@ -19,7 +19,7 @@ Alternatively:
 1. Clone **TbLG** repository:
 
 ```bash
-git clone https://github.com/dbespiatykh/tblg.git
+git clone https://github.com/dbespiatykh/tblg.git && cd tblg
 ```
 
 2. Install **TbLG**
@@ -37,18 +37,20 @@ tblg -h
 ## Usage
 
 ```bash
-Usage: tblg [OPTIONS] <vcf_files>
+ TbLG (Tuberculosis Lineage Genotyping) | v0.1.4
 
-  TbLG (Tuberculosis Lineage Genotyping).
+ Usage: tblg [OPTIONS] [VCF FILES]
 
-  Process one or more VCF files and genotype lineages.
+ Process one or more VCF files and genotype lineages.
 
-  VCF_FILES: One or more VCF files to be processed.
-
-Options:
-  -o, --output PATH  Write results to file '.txt', '.tsv', or '.csv'.
-  -v, --version      Show the version and exit.
-  -h, --help         Show this message and exit.
+╭─ Arguments ─────────────────────────────────────────────────────────────╮
+│ *  VCF_FILES    [VCF FILES]  [required]                                 │
+╰─────────────────────────────────────────────────────────────────────────╯
+╭─ Options ───────────────────────────────────────────────────────────────╮
+│ --output   -o  PATH  Write results to file ['.txt', '.tsv', or '.csv']  │
+│ --version  -v        Show the version and exit.                         │
+│ --help     -h        Show this message and exit.                        │
+╰─────────────────────────────────────────────────────────────────────────╯
 ```
 
 - By default, the output is written to the standard output (stdout) in tabular format. However, the user can use the option `-o` or `--output` to change the output format to either a tab-separated or comma-separated file.

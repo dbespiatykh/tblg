@@ -4,6 +4,7 @@ import datetime
 import logging
 import os
 import os.path
+import signal
 
 import pandas as pd
 import rich_click as click
@@ -40,45 +41,95 @@ def combine_results(results_list):
     return results
 
 
+class TimeoutException(Exception):
+    """
+    A custom exception class that is raised when a timeout occurs.
+    """
+
+    pass
+
+
+def handle_timeout(signum, frame):
+    """
+    A function that raises a TimeoutException exception when a timeout occurs.
+    """
+    raise TimeoutException()
+
+
+def get_new_output_path(output):
+    """
+    A function that generates a new output path with a timestamp in the filename.
+
+    Args:
+        output (str): The original output path.
+
+    Returns:
+        str: The new output path with a timestamp in the filename.
+    """
+    now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    basename = os.path.basename(output)
+    new_basename = f"{now}_{basename}"
+    directory = os.path.dirname(output) if os.path.dirname(output) else os.getcwd()
+    new_output = os.path.join(directory, new_basename)
+    return os.path.splitext(new_output)[0] + ".tsv"
+
+
 def write_results_to_file(results, output):
     """
-    Write a dataframe containing results to a file in CSV or TSV format
+    A function that writes a dataframe containing results to a file in CSV or TSV format.
+
+    Args:
+        results (pandas.DataFrame): The dataframe containing the results to be written to a file.
+        output (str): The path of the output file.
+
+    Raises:
+        ValueError: If the output file extension is not '.csv', '.tsv', or '.txt'.
+        OSError: If the output file cannot be created due to an operating system error.
+
+    Returns:
+        None
     """
     if not output:
         return
 
-    if not os.path.dirname(output):
-        output = os.path.join(os.getcwd(), output)
+    output = os.path.abspath(output)
+    output_dir = os.path.dirname(output)
 
-    try:
-        if os.path.exists(output):
-            while True:
+    if os.path.exists(output):
+        while True:
+            try:
+                signal.signal(signal.SIGALRM, handle_timeout)
+                signal.alarm(60)
                 user_input = Prompt.ask(
                     f"[yellow bold]File[/] [cyan italic]{output}[/] [yellow bold]already exists.\n"
-                    f"Do you want to overwrite it? (y/n) [dim] Press [italic]ENTER[/] to exit",
+                    f"Do you want to overwrite it? [cyan bold]\[y/n][/] [dim]Press [italic]ENTER[/] to exit",
                 )
+                signal.alarm(0)
+
                 if user_input.lower() == "y":
                     rprint(f"[yellow bold]Overwriting[/] [italic]{output}")
                     break
                 elif user_input.lower() == "n":
-                    now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                    new_output = f"{now}_{os.path.basename(output)}"
-                    output_dir = os.path.dirname(output)
-                    if not output_dir:
-                        output_dir = os.getcwd()
-                    new_output = os.path.join(output_dir, new_output)
-                    new_output = os.path.splitext(new_output)[0] + ".tsv"
+                    new_output = get_new_output_path(output)
                     results.to_csv(new_output, index=False, sep="\t")
                     rprint(f"[yellow bold]Saving as[/] [italic]{new_output}")
                     return
-                elif user_input == "":
+                elif not user_input.strip():
                     raise KeyboardInterrupt
                 else:
                     rprint(
                         "[red bold]Invalid input.[/] [yellow]Please enter [italic]'y'[/] or [italic]'n'[/]."
                     )
 
-        os.makedirs(os.path.dirname(output), exist_ok=True)
+            except TimeoutException:
+                rprint("\n[red bold]Timeout exceeded.[/]")
+                new_output = get_new_output_path(output)
+                results.to_csv(new_output, index=False, sep="\t")
+                rprint(f"[yellow bold]Saving as[/] [italic]{new_output}")
+                return
+
+    try:
+        os.makedirs(output_dir, exist_ok=True)
 
         ext = os.path.splitext(output)[1]
         if ext == ".csv":
@@ -86,8 +137,7 @@ def write_results_to_file(results, output):
         elif ext == ".tsv" or ext == ".txt":
             results.to_csv(output, index=False, sep="\t")
         else:
-            raise SystemExit("Output file must have 'txt', 'tsv', or 'csv' extension")
-
+            raise ValueError("Output file must have 'txt', 'tsv', or 'csv' extension")
     except OSError as e:
         if e.errno == 30:
             log.error(
